@@ -1,5 +1,5 @@
 const express = require('express');
-const signup = require('../type');
+// const signup = require('../type');
 const updateBody = require('../type')
 const { User, Account } = require('../db');
 const jwt = require('jsonwebtoken');
@@ -7,47 +7,54 @@ const JWT_SECRET = require('../config');
 const authMiddleware = require('../middleware');
 
 const router = express.Router();
+const zod = require('zod');
 
+const signup = zod.object({
+    username: zod.string(),
+    password: zod.string(),
+    firstName: zod.string(),
+    lastName: zod.string()
+})
 
-route.post('/signup', async (req,res)=>{
+router.post('/signup', async (req,res)=>{
     const createPayload= req.body;
     const parsePayload = signup.safeParse(createPayload);
     // get the inputs with req.body the parse with zod
 
     if(!parsePayload){
-        res.status(411).json({
+        return res.status(411).json({
             msg: "Email already taken / Invalid input"
         })
-        return;
     }
     //if parsing not successful then email already taken or wrong input
 
     const existingUser = await User.findOne({
-        username: username
+        username: req.body.username
     })
     //if parsed succesfully then we find if username is already there
 
     if(existingUser){
-        res.status(411).json({
+        return res.status(411).json({
             msg: "Email already taken / Invalid inputs"
         })
     }
     //existingUser also means email already taken
 
-    await User.create({
+    const user = await User.create({
         username: createPayload.username,
-        passsword: createPayload.passsword,
+        password: createPayload.password,
         firstName: createPayload.firstName,
         lastName: createPayload.lastName
     })
     //if not then new user is created in database
+
+    const userId = user._id;
     
     await Account.create({
         userId,
         balance: 1 + Math.random() * 1000     // giving the user a random initial balance when they sign up
     })
 
-    const userId = user._id;
     const token = jwt.sign({userId}, JWT_SECRET);
 
     res.json({
@@ -57,7 +64,7 @@ route.post('/signup', async (req,res)=>{
     //token also generated
 })
 
-route.post('/signin', async (req, res)=>{
+router.post('/signin', async (req, res)=>{
     const username = req.body.username;
     const password = req.body.password;
 

@@ -1,6 +1,7 @@
 const express = require('express');
 const { User, Account } = require('../db');
 const authMiddleware = require('../middleware');
+const mongoose = require("mongoose")
 
 const router = express();
 
@@ -13,16 +14,16 @@ router.get('/balance', authMiddleware, async (req, res)=>{
         balance : account.balance
     })
 })
-//getting the account from Account database, and fething there balance
+//getting the account from Account database, and fetching there balance
 
 
 
 router.post('/transfer', authMiddleware, async (req, res)=>{
     const session = await mongoose.startSession();
     //this session make sures that only one transaction is made when under the session, as if this procedure is not followed one can does two transaction simultaneously
-    //and that can result in balance error like if same amount transfered to two different accounts at same time, the reciver accounts will recive the amounts but the sender account might only deduce one amount
+    //and that can result in balance error like if same amount transfered to two different accounts at same time, the receiver accounts will receive the amounts but the sender account might only deduce one amount
 
-    session.startSession();
+    session.startTransaction();
     const {amount, to} = req.body;
     //getting amount and userid of "to" whom we want to send money
 
@@ -41,9 +42,10 @@ router.post('/transfer', authMiddleware, async (req, res)=>{
     const toAccount = await Account.findOne({
         userId: to
     }).session(session);
-    //get reciever account
+    //get receiver account
 
     if(!toAccount){
+        await session.AbortTransaction() //not found receiver account then abort transaction
         res.status(400).json({
             msg: "Invalid Account"
         })
@@ -66,9 +68,9 @@ router.post('/transfer', authMiddleware, async (req, res)=>{
             balance: +amount
         }
     }).session(session);
-    //credit amount in reciever account
+    //credit amount in receiver account
 
-    await session.commitTransaction() //end session
+    await session.commitTransaction() //everything will execute with commiting session
     res.status(200).json({
         msg: "Transaction successfull"
     })

@@ -21,7 +21,7 @@ const UserSchema = mongoose.Schema({
     }
 })
 
-const accountSchema = mongoose.model({
+const accountSchema = mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         //reference to user model
@@ -29,7 +29,7 @@ const accountSchema = mongoose.model({
         required: true
     },
     balance: {
-        type: String,
+        type: Number,
         required: true
     }
 })
