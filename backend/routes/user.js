@@ -107,7 +107,7 @@ router.put('/', authMiddleware, async (req, res)=>{
     })
 })
 
-router.get('/bulk', async (req, res)=>{
+router.get('/bulk', authMiddleware, async (req, res)=>{
     const filter = req.query.filter || ""; //input or "" which means search the input initials name or empty space means a list of every name
     //getting the input as filter
     // this route will work like in websites where we search for a name in the searchbar like any social media platform or in this case a pytm application

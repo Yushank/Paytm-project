@@ -2,6 +2,7 @@ import axios from "axios"
 import { Appbar } from "../components/Appbar"
 import { Balance } from "../components/Balance"
 import { useEffect, useState } from "react"
+import { Users } from "../components/Users"
 
 
 export const Dashboard=()=>{
@@ -31,5 +32,11 @@ export const Dashboard=()=>{
     return <div>
         <Appbar></Appbar>
         <Balance value={balance}></Balance>
+        <Users />
     </div>
 }
+
+
+
+
+//for users fetch all users like we fetched balance then using map function send ony by one users to Users.jsx
