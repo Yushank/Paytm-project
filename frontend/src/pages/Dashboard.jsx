@@ -5,21 +5,21 @@ import { useEffect, useState } from "react"
 import { Users } from "../components/Users"
 
 
-export const Dashboard=()=>{
+export const Dashboard = () => {
     const [balance, setBalance] = useState("");
 
-    useEffect(()=>{
-        const fetchBalance= async()=>{
-            try{
+    useEffect(() => {
+        const fetchBalance = async () => {
+            try {
                 const token = localStorage.getItem("token");
                 const res = await axios.get("http://localhost:3000/api/v1/account/balance", {
-                    headers:{
+                    headers: {
                         Authorization: `Bearer ${token}`
                     }
                 });
                 console.log("response.data: ", res.data);
                 setBalance(res.data.balance)
-            }catch(error){
+            } catch (error) {
                 console.error("error fetching balance", error)
             }
         }
@@ -31,8 +31,10 @@ export const Dashboard=()=>{
 
     return <div>
         <Appbar></Appbar>
-        <Balance value={balance}></Balance>
-        <Users />
+        <div className="m-8">
+            <Balance value={balance}></Balance>
+            <Users />
+        </div>
     </div>
 }
 
